@@ -153,12 +153,20 @@ def first_level():
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             player.rect.x -= speed
+            if player.rect.x < 0:
+                player.rect.x = 0
         elif keys[pygame.K_RIGHT]:
             player.rect.x += speed
+            if player.rect.x > 1260:
+                player.rect.x = 1260
         elif keys[pygame.K_DOWN]:
             player.rect.y += speed
+            if player.rect.y > 710:
+                player.rect.y = 710
         elif keys[pygame.K_UP]:
-            player.rect -= speed
+            player.rect.y -= speed
+            if player.rect.y < 0:
+                player.rect = 10
 
         clock.tick(fps)
         pygame.display.update()
@@ -177,8 +185,6 @@ def second_level():
         [10, 710, 1270, 10],
         [60, 80, 10, 210],
         [70, 110, 378, 10],
-        [448, 60, 10, 60],
-        [458, 60, 150, 10],
         [608, 60, 10, 200],
         [70, 170, 428, 10],
         [498, 120, 10, 60],
@@ -205,9 +211,12 @@ def second_level():
         all_sprites.add(wall)
 
     player = Player(35, 40, 'yodo.png')
-    player.walls = wall_list
     PLAYER.add(player)
     all_sprites.add(player)
+    player.walls = wall_list
+    clock = pygame.time.Clock()
+    fps = 60
+    speed = 3
     running = True
 
     while running:
@@ -219,9 +228,6 @@ def second_level():
         bloock_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
         if bloock_hit_list:
             running = False
-        clock = pygame.time.Clock()
-        fps = 60
-        speed = 3
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
@@ -248,8 +254,6 @@ def second_level():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-        pygame.display.update()
 
 # лавное меню, при нажатии единственной кнопки "Play" появляется "новый" экран (старый заполняется черным цветом, появляются новые кнопки)
 def main_menu():
