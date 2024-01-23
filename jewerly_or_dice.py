@@ -63,6 +63,13 @@ class Wall(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, x, y, img):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(img)
+        self.rect = self.image.get_rect(center=(x, y))
+
+
 # используем файл, в котором записаны нужные нам цвета и шрифты
 def get_font(size):
     return pygame.font.Font("font.ttf", size)
@@ -106,6 +113,7 @@ def first_level():
     pygame.display.set_caption('First level')
     wall_list = pygame.sprite.Group()
     PLAYER = pygame.sprite.Group()
+    coins = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
 
     wall_coord = [
@@ -136,16 +144,33 @@ def first_level():
     PLAYER.add(player)
     all_sprites.add(player)
     player.walls = wall_list
+
+    diamond = Coin(850, 50, 'diamond.png')
+    all_sprites.add(diamond)
+    coins.add(diamond)
+
+    gold = Coin(300, 680, 'goldi.png')
+    all_sprites.add(gold)
+    coins.add(gold)
+
+    coin = Coin(1250, 50, 'coin.png')
+    all_sprites.add(coin)
+    coins.add(coin)
+
     clock = pygame.time.Clock()
     fps = 60
     speed = 3
     running = True
 
     while running:
+        score = 0
         SCREEN.blit(first_level_bg, (0, 0))
         SCREEN.blit(player.image, player.rect)
         all_sprites.draw(SCREEN)
         pygame.display.update()
+        player_coin = pygame.sprite.spritecollide(player, coins, True)
+        if player_coin:
+            score += 100
         bloock_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
         if bloock_hit_list:
             running = False
