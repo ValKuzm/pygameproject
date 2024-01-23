@@ -1,4 +1,4 @@
-import pygame, sys, os, random, time
+import pygame, sys
 
 pygame.init()
 # задаем размер экрана, заголовок и задний фон
@@ -8,10 +8,8 @@ BG = pygame.image.load('BG.jpg')
 first_level_bg = pygame.image.load('first.jpg')
 second_level_bg = pygame.image.load('second.jpg')
 white = (255, 255, 255)
-wall_list = pygame.sprite.Group()
-PLAYER = pygame.sprite.Group()
-all_sprites = pygame.sprite.Group()
 
+# класс, отвечающий за кнопки
 class Button:
     def __init__(self, image, pos, text_input, font, base_color, hovering_color):
         self.image = image
@@ -42,6 +40,8 @@ class Button:
             self.text = self.font.render(self.text_input, True, self.hovering_color)
         else:
             self.text = self.font.render(self.text_input, True, self.base_color)
+
+# класс, описывающий персонажа игрока
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, name):
         pygame.sprite.Sprite.__init__(self)
@@ -52,6 +52,7 @@ class Player(pygame.sprite.Sprite):
         self.walls = None
         self.enemyes = pygame.sprite.Group()
 
+# класс, отвечающий за стены
 class Wall(pygame.sprite.Sprite):
     def __init__(self, x, y, weight, height):
         super().__init__()
@@ -63,12 +64,44 @@ class Wall(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+# класс отвечающий за сокровища
 class Coin(pygame.sprite.Sprite):
     def __init__(self, x, y, img):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load(img)
         self.rect = self.image.get_rect(center=(x, y))
 
+# в данной функции подводятся итоги игры, которые записываются в файл result.txt
+def end(score):
+    pygame.display.set_caption('The End')
+    while True:
+        SCREEN.fill((0,0,0))
+        end_text = f"Congratulations! You finished the game with {score} points!!"
+        end_window_rect = SCREEN.get_rect(center=(1280 // 2, 720 // 2))
+
+        font = pygame.font.Font(None, 30)
+        text = font.render(end_text, True, (255, 255, 255))
+        text_rect = text.get_rect(center=(1280 // 2, 720 // 2 - 50))
+
+        SCREEN.blit(SCREEN, end_window_rect)
+        SCREEN.blit(text, text_rect)
+
+        pygame.display.update()
+
+        try:
+            with open('results.txt', 'r') as f:
+                count = len(list(map(str.strip, f.readlines())))
+        except FileNotFoundError:
+            count = 0
+        with open('results.txt', 'w') as f:
+            f.write(f'Игра №{count}: вы заработали {score} очков')
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        pygame.display.update()
 
 # используем файл, в котором записаны нужные нам цвета и шрифты
 def get_font(size):
@@ -109,13 +142,15 @@ def play():
 
         pygame.display.update()
 
+# первый уровень
 def first_level():
     pygame.display.set_caption('First level')
+    # группы спрайтов
     wall_list = pygame.sprite.Group()
     PLAYER = pygame.sprite.Group()
     coins = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
-
+    # координаты стен
     wall_coord = [
         [0, 0, 10, 720],
         [10, 0, 1270, 10],
@@ -135,11 +170,12 @@ def first_level():
         [1200, 92, 10, 478],
         [770, 570, 500, 10]
     ]
+
     for coord in wall_coord:
         wall = Wall(coord[0], coord[1], coord[2], coord[3])
         wall_list.add(wall)
         all_sprites.add(wall)
-
+    # задаем расположение игрока и сокровищ
     player = Player(50, 50, 'yodo.png')
     PLAYER.add(player)
     all_sprites.add(player)
@@ -160,10 +196,10 @@ def first_level():
     clock = pygame.time.Clock()
     fps = 60
     speed = 3
-    running = True
+    score = 0
+    number = 3
 
-    while running:
-        score = 0
+    while True:
         SCREEN.blit(first_level_bg, (0, 0))
         SCREEN.blit(player.image, player.rect)
         all_sprites.draw(SCREEN)
@@ -171,9 +207,10 @@ def first_level():
         player_coin = pygame.sprite.spritecollide(player, coins, True)
         if player_coin:
             score += 100
+            number -= 1
         bloock_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
         if bloock_hit_list:
-            running = False
+            number = 0
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
@@ -196,14 +233,22 @@ def first_level():
         clock.tick(fps)
         pygame.display.update()
 
+        if number == 0:
+            end(score)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+# второй уровень
 def second_level():
     pygame.display.set_caption('Second level')
+    wall_list = pygame.sprite.Group()
+    PLAYER = pygame.sprite.Group()
     coins = pygame.sprite.Group()
+    all_sprites = pygame.sprite.Group()
+
     wall_coord = [
         [0, 0, 10, 720],
         [10, 0, 1270, 10],
@@ -217,12 +262,12 @@ def second_level():
         [508, 120, 50, 10],
         [670, 10, 10, 300],
         [120, 310, 560, 10],
-        [760, 60, 10, 310],
-        [850, 60, 10, 310],
-        [770, 60, 420, 10],
+        [760, 80, 10, 310],
+        [850, 80, 10, 310],
+        [770, 800, 420, 10],
         [1190, 60, 10, 310],
         [1020, 360, 170, 10],
-        [950, 150, 10, 450],
+        [950, 100, 10, 450],
         [150, 450, 1160, 10],
         [60, 450, 10, 190],
         [70, 545, 350, 10],
@@ -231,6 +276,7 @@ def second_level():
         [770, 640, 400, 10],
         [1170, 640, 10, 70]
     ]
+
     for coord in wall_coord:
         wall = Wall(coord[0], coord[1], coord[2], coord[3])
         wall_list.add(wall)
@@ -245,20 +291,21 @@ def second_level():
     all_sprites.add(diamond)
     coins.add(diamond)
 
-    gold = Coin(300, 680, 'goldi.png')
+    gold = Coin(300, 500, 'goldi.png')
     all_sprites.add(gold)
     coins.add(gold)
 
-    coin = Coin(1250, 50, 'coin.png')
+    coin = Coin(900, 50, 'coin.png')
     all_sprites.add(coin)
     coins.add(coin)
 
     clock = pygame.time.Clock()
     fps = 60
     speed = 3
-    running = True
+    score = 0
+    number = 3
 
-    while running:
+    while True:
         SCREEN.blit(second_level_bg, (0, 0))
         SCREEN.blit(player.image, player.rect)
         all_sprites.draw(SCREEN)
@@ -267,9 +314,10 @@ def second_level():
         player_coin = pygame.sprite.spritecollide(player, coins, True)
         if player_coin:
             score += 100
+            number -= 1
         bloock_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
         if bloock_hit_list:
-            running = False
+            number = 0
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
@@ -291,13 +339,15 @@ def second_level():
 
         clock.tick(fps)
         pygame.display.update()
+        if number == 0:
+            end(score)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-# лавное меню, при нажатии единственной кнопки "Play" появляется "новый" экран (старый заполняется черным цветом, появляются новые кнопки)
+# главное меню, при нажатии единственной кнопки "Play" появляется "новый" экран (старый заполняется черным цветом, появляются новые кнопки)
 def main_menu():
     pygame.display.set_caption('Menu')
 
