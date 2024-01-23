@@ -203,6 +203,7 @@ def first_level():
 
 def second_level():
     pygame.display.set_caption('Second level')
+    coins = pygame.sprite.Group()
     wall_coord = [
         [0, 0, 10, 720],
         [10, 0, 1270, 10],
@@ -239,6 +240,19 @@ def second_level():
     PLAYER.add(player)
     all_sprites.add(player)
     player.walls = wall_list
+
+    diamond = Coin(850, 550, 'diamond.png')
+    all_sprites.add(diamond)
+    coins.add(diamond)
+
+    gold = Coin(300, 680, 'goldi.png')
+    all_sprites.add(gold)
+    coins.add(gold)
+
+    coin = Coin(1250, 50, 'coin.png')
+    all_sprites.add(coin)
+    coins.add(coin)
+
     clock = pygame.time.Clock()
     fps = 60
     speed = 3
@@ -250,6 +264,9 @@ def second_level():
         all_sprites.draw(SCREEN)
         pygame.display.update()
         player.walls = wall_list
+        player_coin = pygame.sprite.spritecollide(player, coins, True)
+        if player_coin:
+            score += 100
         bloock_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
         if bloock_hit_list:
             running = False
