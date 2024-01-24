@@ -4,9 +4,11 @@ pygame.init()
 # задаем размер экрана, заголовок и задний фон
 SCREEN = pygame.display.set_mode((1280, 720))
 pygame.display.set_caption('Menu')
+
 BG = pygame.image.load('BG.jpg')
 first_level_bg = pygame.image.load('first.jpg')
 second_level_bg = pygame.image.load('second.jpg')
+
 white = (255, 255, 255)
 
 # класс, отвечающий за кнопки
@@ -20,8 +22,10 @@ class Button:
         self.hovering_color = hovering_color
         self.text_input = text_input
         self.text = self.font.render(self.text_input, True, self.base_color)
+        
         if self.image is None:
             self.image = self.text
+            
         self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
         self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
 
@@ -68,6 +72,7 @@ class Wall(pygame.sprite.Sprite):
 class Coin(pygame.sprite.Sprite):
     def __init__(self, x, y, img):
         pygame.sprite.Sprite.__init__(self)
+        
         self.image = pygame.image.load(img)
         self.rect = self.image.get_rect(center=(x, y))
 
@@ -122,6 +127,7 @@ def play():
         # создаем новые кнопки
         first_button = Button(image=pygame.image.load('rect.png'), pos=(640, 340),
                              text_input='FIRST LEVEL', font=get_font(40), base_color='#d7fcd4', hovering_color='White')
+        
         second_button = Button(image=pygame.image.load('rect.png'), pos=(640, 540),
                               text_input='SECOND LEVEL', font=get_font(40), base_color='#d7fcd4', hovering_color='White')
 
@@ -145,11 +151,13 @@ def play():
 # первый уровень
 def first_level():
     pygame.display.set_caption('First level')
+    
     # группы спрайтов
     wall_list = pygame.sprite.Group()
     PLAYER = pygame.sprite.Group()
     coins = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
+    
     # координаты стен
     wall_coord = [
         [0, 0, 10, 720],
@@ -175,6 +183,7 @@ def first_level():
         wall = Wall(coord[0], coord[1], coord[2], coord[3])
         wall_list.add(wall)
         all_sprites.add(wall)
+        
     # задаем расположение игрока и сокровищ
     player = Player(50, 50, 'yodo.png')
     PLAYER.add(player)
@@ -204,10 +213,12 @@ def first_level():
         SCREEN.blit(player.image, player.rect)
         all_sprites.draw(SCREEN)
         pygame.display.update()
+        
         player_coin = pygame.sprite.spritecollide(player, coins, True)
         if player_coin:
             score += 100
             number -= 1
+            
         bloock_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
         if bloock_hit_list:
             number = 0
@@ -217,14 +228,17 @@ def first_level():
             player.rect.x -= speed
             if player.rect.x < 0:
                 player.rect.x = 0
+                
         elif keys[pygame.K_RIGHT]:
             player.rect.x += speed
             if player.rect.x > 1260:
                 player.rect.x = 1260
+                
         elif keys[pygame.K_DOWN]:
             player.rect.y += speed
             if player.rect.y > 710:
                 player.rect.y = 710
+                
         elif keys[pygame.K_UP]:
             player.rect.y -= speed
             if player.rect.y < 0:
@@ -311,10 +325,12 @@ def second_level():
         all_sprites.draw(SCREEN)
         pygame.display.update()
         player.walls = wall_list
+        
         player_coin = pygame.sprite.spritecollide(player, coins, True)
         if player_coin:
             score += 100
             number -= 1
+            
         bloock_hit_list = pygame.sprite.spritecollide(player, wall_list, False)
         if bloock_hit_list:
             number = 0
@@ -324,14 +340,17 @@ def second_level():
             player.rect.x -= speed
             if player.rect.x < 0:
                 player.rect.x = 0
+                
         elif keys[pygame.K_RIGHT]:
             player.rect.x += speed
             if player.rect.x > 1260:
                 player.rect.x = 1260
+                
         elif keys[pygame.K_DOWN]:
             player.rect.y += speed
             if player.rect.y > 710:
                 player.rect.y = 710
+                
         elif keys[pygame.K_UP]:
             player.rect.y -= speed
             if player.rect.y < 0:
